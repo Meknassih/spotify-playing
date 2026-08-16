@@ -60,8 +60,9 @@ int strip_string(char **dest, const char *src) {
 }
 
 // Execute a shell command and set `*output` to the first line of output
-// Returns length of the output
-ssize_t exec_single_line(char **output, const char *cmd) {
+// Returns exit status of cmd
+// *output needs to be free'd
+int exec_single_line(char **output, const char *cmd) {
   FILE *cmd_f = popen(cmd, "r");
   assert(cmd_f != NULL);
 
@@ -69,14 +70,12 @@ ssize_t exec_single_line(char **output, const char *cmd) {
   char *lineout = NULL;
   ssize_t n = getline(&lineout, &line_size, cmd_f);
   if (n <= 0) {
-    fprintf(stderr, "cmd returned an empty string\n");
     pclose(cmd_f);
     return -1;
   }
-  size_t len = strip_string(output, lineout);
-  pclose(cmd_f);
+  strip_string(output, lineout);
   free(lineout);
-  return len;
+  return pclose(cmd_f);
 }
 
 // Provide steps to animate a string with length > max_len
@@ -195,10 +194,20 @@ char *json_next_animation_step(json_object *ji, song_attr attr) {
 
 int main(void) {
   char *full_title = NULL, *full_artist = NULL;
-  exec_single_line(
-      &full_title, "playerctl -f {{title}} -p spotify metadata");
-  exec_single_line(
-      &full_artist, "playerctl -f {{artist}} -p spotify metadata");
+  int title_cmd_status = exec_single_line(
+      &full_title, "playerctl -f {{title}} -p spotify metadata 2>&1");
+  int artist_cmd_status = exec_single_line(
+      &full_artist, "playerctl -f {{artist}} -p spotify metadata 2>&1");
+  if (full_title == NULL || full_artist == NULL) {
+    return EXIT_FAILURE;
+  }
+  if ((title_cmd_status != 0 && strcmp(full_title, "No players found") == 0) ||
+      (artist_cmd_status != 0 && strcmp(full_artist, "No players found") == 0)) {
+    printf("\n");
+    return EXIT_SUCCESS;
+  }
+  else if (title_cmd_status != 0 || artist_cmd_status != 0)
+    return EXIT_FAILURE;
 
   // Both values < MAX_LEN, output them as is and exit
   if (strlen(full_title) < MAX_LEN && strlen(full_artist) < MAX_LEN) {

@@ -1,1 +1,4 @@
+# executable
 spotify-playing
+# heaptrack analysis files
+*.zst

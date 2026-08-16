@@ -10,12 +10,16 @@ Example for "Symphony No. 40 in G minor, K. 550: I. Allegro Molto" by "Wolfgang 
 Tested on Debian 13 (Trixie).
 
 ## Using with Polybar
+
+![spotify-playing as a Polybar module demo GIF](docs/images/spotify-playing-demo.gif)
+
 Module configuration for Polybar:
 ```
 [module/spotify-playing]
 type = custom/script
 exec = ~/.config/i3/polybar/spotify-playing
 interval = 1
+# NerdFont required for the Spotify logo below
 format-prefix = " "
 format-prefix-foreground = "#1ED760"
 label = %output%

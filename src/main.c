@@ -204,10 +204,15 @@ int main(void) {
   if ((title_cmd_status != 0 && strcmp(full_title, "No players found") == 0) ||
       (artist_cmd_status != 0 && strcmp(full_artist, "No players found") == 0)) {
     printf("\n");
+    free(full_title);
+    free(full_artist);
     return EXIT_SUCCESS;
   }
-  else if (title_cmd_status != 0 || artist_cmd_status != 0)
+  else if (title_cmd_status != 0 || artist_cmd_status != 0) {
+    free(full_title);
+    free(full_artist);
     return EXIT_FAILURE;
+  }
 
   // Both values < MAX_LEN, output them as is and exit
   if (strlen(full_title) < MAX_LEN && strlen(full_artist) < MAX_LEN) {

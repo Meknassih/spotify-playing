@@ -282,10 +282,8 @@ int main(void) {
   add_res = json_object_object_add(
       json_out, "fullArtist", json_object_new_string(full_artist));
   assert(add_res == 0);
-  char* title_out = NULL;
-  title_out = full_title;
-  char* artist_out = NULL;
-  artist_out = full_artist;
+  // title_out/artist_out only own memory when an animation step was generated
+  char *title_out = NULL, *artist_out = NULL;
 
   if (strlen(full_title) > MAX_LEN) {
     title_out = json_gen_animation_steps(json_out, SONG_TITLE, full_title);
@@ -297,7 +295,8 @@ int main(void) {
   }
 
   // Print result to stdout
-  printf("%s - %s\n", title_out, artist_out);
+  printf("%s - %s\n", title_out == NULL ? full_title : title_out,
+         artist_out == NULL ? full_artist : artist_out);
 
   // Write next animation steps to cache
   if (json_object_to_file(CACHE_PATH, json_out) < 0) {

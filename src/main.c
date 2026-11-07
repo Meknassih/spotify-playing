@@ -214,8 +214,8 @@ int main(void) {
     return EXIT_FAILURE;
   }
 
-  // Both values < MAX_LEN, output them as is and exit
-  if (strlen(full_title) < MAX_LEN && strlen(full_artist) < MAX_LEN) {
+  // Both values <= MAX_LEN, output them as is and exit
+  if (strlen(full_title) <= MAX_LEN && strlen(full_artist) <= MAX_LEN) {
     printf("%s - %s\n", full_title, full_artist);
     json_object *json_empty = json_object_new_object();
     if (json_object_to_file(CACHE_PATH, json_empty) < 0) {
